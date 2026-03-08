@@ -13,3 +13,4 @@ matplotlib
 tqdm
 langchain-community
 requests
+gdown
