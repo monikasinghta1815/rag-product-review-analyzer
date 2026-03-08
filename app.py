@@ -141,8 +141,9 @@ def load_llm():
 
     llm = HuggingFaceEndpoint(
         repo_id="google/flan-t5-base",
-        temperature=0.5,
-        max_new_tokens=512
+        task="text2text-generation",
+        max_new_tokens=512,
+        temperature=0.5
     )
 
     return llm
