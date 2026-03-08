@@ -7,9 +7,9 @@ from langchain_community.vectorstores import FAISS
 #from langchain_community.llms import Ollama
 from langchain_core.prompts import PromptTemplate
 from langchain_classic.chains import RetrievalQA
-from langchain_community.llms import HuggingFaceHub
+#from langchain_community.llms import HuggingFaceHub
 import os
-
+from langchain_community.llms import HuggingFaceEndpoint
 
 os.environ["HUGGINGFACEHUB_API_TOKEN"] = st.secrets["HUGGINGFACEHUB_API_TOKEN"]
 
@@ -139,12 +139,10 @@ prompt = PromptTemplate(
 @st.cache_resource
 def load_llm():
 
-    llm = HuggingFaceHub(
+    llm = HuggingFaceEndpoint(
         repo_id="google/flan-t5-base",
-        model_kwargs={
-            "temperature": 0.5,
-            "max_length": 512
-        }
+        temperature=0.5,
+        max_new_tokens=512
     )
 
     return llm
