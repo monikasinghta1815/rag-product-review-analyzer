@@ -9,4 +9,5 @@ scikit-learn
 torch
 torchvision
 torchaudio
+matplotlib
 tqdm
