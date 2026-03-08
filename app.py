@@ -138,13 +138,13 @@ prompt = PromptTemplate(
 # Load LLM
 # --------------------------------------------------
 
-@st.cache_resource
+    @st.cache_resource
 def load_llm():
 
     pipe = pipeline(
-        task="text2text-generation",
-        model="google/flan-t5-base",
-        max_new_tokens=512
+        "text-generation",
+        model="distilgpt2",
+        max_new_tokens=256
     )
 
     llm = HuggingFacePipeline(pipeline=pipe)
