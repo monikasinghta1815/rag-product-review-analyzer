@@ -1,20 +1,15 @@
 import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
-
-from langchain_community.embeddings import HuggingFaceEmbeddings
-from langchain_community.vectorstores import FAISS
-#from langchain_community.llms import Ollama
-from langchain_core.prompts import PromptTemplate
-from langchain_classic.chains import RetrievalQA
-#from langchain_community.llms import HuggingFaceHub
 import os
-#from langchain_community.llms import HuggingFaceEndpoint
+import gdown
+
 from transformers import pipeline
 from langchain_community.llms import HuggingFacePipeline
-
-os.environ["HUGGINGFACEHUB_API_TOKEN"] = st.secrets["HUGGINGFACEHUB_API_TOKEN"]
-
+from langchain_community.embeddings import HuggingFaceEmbeddings
+from langchain_community.vectorstores import FAISS
+from langchain_core.prompts import PromptTemplate
+from langchain_classic.chains import RetrievalQA
 
 
 # --------------------------------------------------
@@ -42,7 +37,7 @@ st.sidebar.markdown("""
 sentence-transformers/all-MiniLM-L6-v2
 
 **LLM Model:**  
-Llama3 (via Ollama)
+DistilGPT2 (HuggingFace)
 
 **Vector Database:**  
 FAISS
@@ -59,24 +54,25 @@ LangChain
 @st.cache_resource
 def load_embeddings():
 
-    return HuggingFaceEmbeddings(
+    embeddings = HuggingFaceEmbeddings(
         model_name="sentence-transformers/all-MiniLM-L6-v2",
-        model_kwargs={'device': 'cpu'}
+        model_kwargs={"device": "cpu"}
     )
+
+    return embeddings
+
+
+# --------------------------------------------------
+# Dataset Config
+# --------------------------------------------------
+
+PARQUET_FILE = "embedding_ready_reviews_small.parquet"
+FILE_ID = "1RwLDYTRcwwbdaNg8M279KxDp86AZ5WP2"
 
 
 # --------------------------------------------------
 # Load Vector Store
 # --------------------------------------------------
-import os
-import gdown
-import pandas as pd
-import streamlit as st
-from langchain_community.vectorstores import FAISS
-
-PARQUET_FILE = "embedding_ready_reviews_small.parquet"
-FILE_ID = "1RwLDYTRcwwbdaNg8M279KxDp86AZ5WP2"
-
 
 @st.cache_resource
 def load_vectorstore():
@@ -86,6 +82,7 @@ def load_vectorstore():
     if not os.path.exists(PARQUET_FILE):
 
         with st.spinner("Downloading dataset..."):
+
             url = f"https://drive.google.com/uc?id={FILE_ID}"
             gdown.download(url, PARQUET_FILE, quiet=False)
 
@@ -99,7 +96,6 @@ def load_vectorstore():
     )
 
     return vectorstore
-
 
 
 # --------------------------------------------------
@@ -127,7 +123,6 @@ Question:
 {question}
 """
 
-
 prompt = PromptTemplate(
     template=template,
     input_variables=["context", "question"]
@@ -138,7 +133,7 @@ prompt = PromptTemplate(
 # Load LLM
 # --------------------------------------------------
 
-    @st.cache_resource
+@st.cache_resource
 def load_llm():
 
     pipe = pipeline(
@@ -208,11 +203,9 @@ if st.button("Analyze Reviews"):
         # --------------------------------------------------
 
         st.subheader("📊 AI Generated Insights")
-
         st.write(result)
 
         st.markdown("---")
-
 
         # --------------------------------------------------
         # Evaluation Metrics
@@ -226,9 +219,7 @@ if st.button("Analyze Reviews"):
         col2.metric("ROUGE-2", "0.67")
         col3.metric("ROUGE-L", "0.75")
 
-
         st.markdown("---")
-
 
         # --------------------------------------------------
         # Sentiment Chart
@@ -252,9 +243,7 @@ if st.button("Analyze Reviews"):
 
         st.pyplot(fig)
 
-
         st.markdown("---")
-
 
         # --------------------------------------------------
         # Retrieved Documents
@@ -267,7 +256,6 @@ if st.button("Analyze Reviews"):
             with st.expander(f"Document {i+1}"):
 
                 st.write(doc.page_content)
-
 
     else:
 
