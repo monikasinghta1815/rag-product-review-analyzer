@@ -12,3 +12,4 @@ torchaudio
 matplotlib
 tqdm
 langchain-community
+requests
