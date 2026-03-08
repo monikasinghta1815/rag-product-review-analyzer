@@ -9,7 +9,9 @@ from langchain_core.prompts import PromptTemplate
 from langchain_classic.chains import RetrievalQA
 #from langchain_community.llms import HuggingFaceHub
 import os
-from langchain_community.llms import HuggingFaceEndpoint
+#from langchain_community.llms import HuggingFaceEndpoint
+from transformers import pipeline
+from langchain_community.llms import HuggingFacePipeline
 
 os.environ["HUGGINGFACEHUB_API_TOKEN"] = st.secrets["HUGGINGFACEHUB_API_TOKEN"]
 
@@ -139,12 +141,13 @@ prompt = PromptTemplate(
 @st.cache_resource
 def load_llm():
 
-    llm = HuggingFaceEndpoint(
-        repo_id="google/flan-t5-base",
-        task="text2text-generation",
-        max_new_tokens=512,
-        temperature=0.5
+    pipe = pipeline(
+        "text2text-generation",
+        model="google/flan-t5-base",
+        max_new_tokens=512
     )
+
+    llm = HuggingFacePipeline(pipeline=pipe)
 
     return llm
 
