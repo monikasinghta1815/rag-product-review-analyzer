@@ -62,7 +62,8 @@ def load_embeddings():
 # --------------------------------------------------
 # Load Vector Store
 # --------------------------------------------------
-
+import os
+import requests
 
 PARQUET_FILE = "embedding_ready_reviews_small.parquet"
 
