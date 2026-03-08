@@ -4,10 +4,14 @@ import matplotlib.pyplot as plt
 
 from langchain_community.embeddings import HuggingFaceEmbeddings
 from langchain_community.vectorstores import FAISS
-from langchain_community.llms import Ollama
+#from langchain_community.llms import Ollama
 from langchain_core.prompts import PromptTemplate
 from langchain_classic.chains import RetrievalQA
+from langchain_community.llms import HuggingFaceHub
+import os
+import streamlit as st
 
+os.environ["HUGGINGFACEHUB_API_TOKEN"] = st.secrets["HUGGINGFACEHUB_API_TOKEN"]
 
 
 
@@ -135,7 +139,15 @@ prompt = PromptTemplate(
 @st.cache_resource
 def load_llm():
 
-    return Ollama(model="llama3")
+    llm = HuggingFaceHub(
+        repo_id="google/flan-t5-base",
+        model_kwargs={
+            "temperature": 0.5,
+            "max_length": 512
+        }
+    )
+
+    return llm
 
 
 # --------------------------------------------------
