@@ -63,13 +63,13 @@ def load_embeddings():
 # Load Vector Store
 # --------------------------------------------------
 import os
-import requests
+import gdown
 import pandas as pd
 import streamlit as st
+from langchain_community.vectorstores import FAISS
 
 PARQUET_FILE = "embedding_ready_reviews_small.parquet"
-#PARQUET_URL = "https://drive.google.com/file/d/1RwLDYTRcwwbdaNg8M279KxDp86AZ5WP2/view?usp=drive_link"
-PARQUET_URL = "https://drive.google.com/uc?export=download&id=1RwLDYTRcwwbdaNg8M279KxDp86AZ5WP2"
+FILE_ID = "1RwLDYTRcwwbdaNg8M279KxDp86AZ5WP2"
 
 
 @st.cache_resource
@@ -80,12 +80,8 @@ def load_vectorstore():
     if not os.path.exists(PARQUET_FILE):
 
         with st.spinner("Downloading dataset..."):
-            response = requests.get(PARQUET_URL, stream=True)
-
-            with open(PARQUET_FILE, "wb") as f:
-                for chunk in response.iter_content(chunk_size=8192):
-                    if chunk:
-                        f.write(chunk)
+            url = f"https://drive.google.com/uc?id={FILE_ID}"
+            gdown.download(url, PARQUET_FILE, quiet=False)
 
     df = pd.read_parquet(PARQUET_FILE)
 
