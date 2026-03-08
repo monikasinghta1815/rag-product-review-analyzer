@@ -68,13 +68,17 @@ def load_vectorstore():
 
     embeddings = load_embeddings()
 
-    vectorstore = FAISS.load_local(
-        "faiss_index",
-        embeddings,
-        allow_dangerous_deserialization=True
+    df = pd.read_parquet("embedding_ready_reviews.parquet")
+
+    texts = df["embedding_text"].tolist()
+
+    vectorstore = FAISS.from_texts(
+        texts,
+        embedding=embeddings
     )
 
     return vectorstore
+
 
 
 # --------------------------------------------------
