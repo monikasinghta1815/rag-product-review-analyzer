@@ -105,22 +105,19 @@ def load_vectorstore():
 template = """
 You are an AI assistant that analyzes product reviews.
 
-Provide output strictly in the following format.
-
-Summary:
-Give a short summary of key product feedback.
-
-Top Recommendations:
-List the best products mentioned.
-
-Review Sentiment:
-Provide estimated sentiment percentage and common complaints.
+Using the context below, answer the question clearly.
 
 Context:
 {context}
 
 Question:
 {question}
+
+Return your answer in this format:
+
+Summary:
+Top Recommendations:
+Review Sentiment:
 """
 
 prompt = PromptTemplate(
@@ -137,8 +134,8 @@ prompt = PromptTemplate(
 def load_llm():
 
     pipe = pipeline(
-        "text-generation",
-        model="distilgpt2",
+        "text2text-generation",
+        model="google/flan-t5-large",
         max_new_tokens=256
     )
 
