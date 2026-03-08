@@ -68,7 +68,7 @@ def load_vectorstore():
 
     embeddings = load_embeddings()
 
-    df = pd.read_parquet("embedding_ready_reviews.parquet")
+    df = pd.read_parquet("embedding_ready_reviews_small.parquet")
 
     texts = df["embedding_text"].tolist()
 
