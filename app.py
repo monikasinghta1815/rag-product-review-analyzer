@@ -64,11 +64,12 @@ def load_embeddings():
 # --------------------------------------------------
 import os
 import requests
+import pandas as pd
+import streamlit as st
 
 PARQUET_FILE = "embedding_ready_reviews_small.parquet"
-
-# paste your file download link here
-PARQUET_URL = "https://drive.google.com/file/d/1RwLDYTRcwwbdaNg8M279KxDp86AZ5WP2/view?usp=sharing"
+#PARQUET_URL = "https://drive.google.com/file/d/1RwLDYTRcwwbdaNg8M279KxDp86AZ5WP2/view?usp=drive_link"
+PARQUET_URL = "https://drive.google.com/uc?export=download&id=1RwLDYTRcwwbdaNg8M279KxDp86AZ5WP2"
 
 
 @st.cache_resource
@@ -76,12 +77,15 @@ def load_vectorstore():
 
     embeddings = load_embeddings()
 
-    # download file if not present
     if not os.path.exists(PARQUET_FILE):
+
         with st.spinner("Downloading dataset..."):
-            r = requests.get(PARQUET_URL)
+            response = requests.get(PARQUET_URL, stream=True)
+
             with open(PARQUET_FILE, "wb") as f:
-                f.write(r.content)
+                for chunk in response.iter_content(chunk_size=8192):
+                    if chunk:
+                        f.write(chunk)
 
     df = pd.read_parquet(PARQUET_FILE)
 
