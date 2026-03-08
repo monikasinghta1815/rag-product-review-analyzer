@@ -1,0 +1,12 @@
+# Ignore embeddings and datasets
+*.parquet
+
+# Ignore FAISS index
+faiss_index/
+
+# Ignore jupyter checkpoints
+.ipynb_checkpoints/
+
+# Python cache
+__pycache__/
+*.pyc

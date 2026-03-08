@@ -1,0 +1,12 @@
+streamlit
+pandas
+numpy
+langchain
+sentence-transformers
+faiss-cpu
+pyarrow
+scikit-learn
+torch
+torchvision
+torchaudio
+tqdm
