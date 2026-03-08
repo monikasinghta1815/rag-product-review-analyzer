@@ -63,12 +63,26 @@ def load_embeddings():
 # Load Vector Store
 # --------------------------------------------------
 
+
+PARQUET_FILE = "embedding_ready_reviews_small.parquet"
+
+# paste your file download link here
+PARQUET_URL = "https://drive.google.com/file/d/1RwLDYTRcwwbdaNg8M279KxDp86AZ5WP2/view?usp=sharing"
+
+
 @st.cache_resource
 def load_vectorstore():
 
     embeddings = load_embeddings()
 
-    df = pd.read_parquet("embedding_ready_reviews_small.parquet")
+    # download file if not present
+    if not os.path.exists(PARQUET_FILE):
+        with st.spinner("Downloading dataset..."):
+            r = requests.get(PARQUET_URL)
+            with open(PARQUET_FILE, "wb") as f:
+                f.write(r.content)
+
+    df = pd.read_parquet(PARQUET_FILE)
 
     texts = df["embedding_text"].tolist()
 
