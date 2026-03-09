@@ -1,16 +1,24 @@
 import streamlit as st
+import os
 import pandas as pd
 import matplotlib.pyplot as plt
-import os
 import gdown
 
-from transformers import pipeline
-from langchain_community.llms import HuggingFacePipeline
+# --------------------------------------------------
+# API Key (must be before LangChain imports)
+# --------------------------------------------------
+
+os.environ["GROQ_API_KEY"] = st.secrets["GROQ_API_KEY"]
+
+# --------------------------------------------------
+# LangChain Imports
+# --------------------------------------------------
+
+from langchain_groq import ChatGroq
 from langchain_community.embeddings import HuggingFaceEmbeddings
 from langchain_community.vectorstores import FAISS
 from langchain_core.prompts import PromptTemplate
 from langchain_classic.chains import RetrievalQA
-os.environ["GROQ_API_KEY"] = st.secrets["GROQ_API_KEY"]
 
 # --------------------------------------------------
 # Page Config
@@ -22,10 +30,10 @@ st.set_page_config(
 )
 
 st.title("🛍️ AI Product Review Analyzer (RAG System)")
-
+st.markdown("**Architecture: RAG + FAISS + Llama3 (Groq)**")
 
 # --------------------------------------------------
-# Sidebar - Model Details
+# Sidebar
 # --------------------------------------------------
 
 st.sidebar.header("⚙️ Model Information")
@@ -37,7 +45,7 @@ st.sidebar.markdown("""
 sentence-transformers/all-MiniLM-L6-v2
 
 **LLM Model:**  
-DistilGPT2 (HuggingFace)
+Llama3-8B (Groq API)
 
 **Vector Database:**  
 FAISS
@@ -45,7 +53,6 @@ FAISS
 **Framework:**  
 LangChain
 """)
-
 
 # --------------------------------------------------
 # Load Embeddings
@@ -61,14 +68,12 @@ def load_embeddings():
 
     return embeddings
 
-
 # --------------------------------------------------
 # Dataset Config
 # --------------------------------------------------
 
 PARQUET_FILE = "embedding_ready_reviews_small.parquet"
 FILE_ID = "1RwLDYTRcwwbdaNg8M279KxDp86AZ5WP2"
-
 
 # --------------------------------------------------
 # Load Vector Store
@@ -88,6 +93,7 @@ def load_vectorstore():
 
     df = pd.read_parquet(PARQUET_FILE)
 
+    # Limit text size to prevent token overflow
     texts = [text[:500] for text in df["embedding_text"].tolist()]
 
     vectorstore = FAISS.from_texts(
@@ -96,7 +102,6 @@ def load_vectorstore():
     )
 
     return vectorstore
-
 
 # --------------------------------------------------
 # Prompt Template
@@ -113,7 +118,7 @@ Context:
 Question:
 {question}
 
-Return:
+Return your response in this format:
 
 Summary:
 Top Recommendations:
@@ -125,12 +130,9 @@ prompt = PromptTemplate(
     input_variables=["context", "question"]
 )
 
-
 # --------------------------------------------------
-# Load LLM
+# Load LLM (Groq)
 # --------------------------------------------------
-
-from langchain_groq import ChatGroq
 
 @st.cache_resource
 def load_llm():
@@ -143,7 +145,6 @@ def load_llm():
 
     return llm
 
-
 # --------------------------------------------------
 # Build RAG Chain
 # --------------------------------------------------
@@ -153,22 +154,23 @@ def build_chain():
 
     vectorstore = load_vectorstore()
 
-    retriever = vectorstore.as_retriever(search_kwargs={"k": 3})
+    retriever = vectorstore.as_retriever(
+        search_kwargs={"k": 3}
+    )
 
     llm = load_llm()
 
     qa_chain = RetrievalQA.from_chain_type(
         llm=llm,
         retriever=retriever,
+        chain_type="stuff",
         chain_type_kwargs={"prompt": prompt},
         return_source_documents=True
     )
 
     return qa_chain
 
-
 qa_chain = build_chain()
-
 
 # --------------------------------------------------
 # User Input
@@ -176,9 +178,8 @@ qa_chain = build_chain()
 
 query = st.text_input(
     "Ask questions about products based on customer reviews:",
-    placeholder="Example: Which water filter has the best customer reviews?"
+    placeholder="Example: Which refrigerator has the best customer reviews?"
 )
-
 
 # --------------------------------------------------
 # Run RAG
@@ -190,13 +191,13 @@ if st.button("Analyze Reviews"):
 
         with st.spinner("Analyzing reviews..."):
 
-            response = qa_chain.invoke({"query": query})
+            response = qa_chain.invoke({"question": query})
 
             result = response["result"]
             docs = response["source_documents"]
 
         # --------------------------------------------------
-        # AI Summary Output
+        # AI Summary
         # --------------------------------------------------
 
         st.subheader("📊 AI Generated Insights")
