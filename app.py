@@ -88,7 +88,7 @@ def load_vectorstore():
 
     df = pd.read_parquet(PARQUET_FILE)
 
-    texts = df["embedding_text"].tolist()
+    texts = [text[:500] for text in df["embedding_text"].tolist()]
 
     vectorstore = FAISS.from_texts(
         texts,
@@ -105,7 +105,7 @@ def load_vectorstore():
 template = """
 You are an AI assistant that analyzes product reviews.
 
-Using the context below, answer the question clearly.
+Using the context below answer the question.
 
 Context:
 {context}
@@ -113,7 +113,7 @@ Context:
 Question:
 {question}
 
-Return your answer in this format:
+Return:
 
 Summary:
 Top Recommendations:
@@ -137,7 +137,8 @@ def load_llm():
 
     llm = ChatGroq(
         model="llama3-8b-8192",
-        temperature=0.3
+        temperature=0.3,
+        max_tokens=300
     )
 
     return llm
@@ -152,7 +153,7 @@ def build_chain():
 
     vectorstore = load_vectorstore()
 
-    retriever = vectorstore.as_retriever(search_kwargs={"k": 5})
+    retriever = vectorstore.as_retriever(search_kwargs={"k": 3})
 
     llm = load_llm()
 
