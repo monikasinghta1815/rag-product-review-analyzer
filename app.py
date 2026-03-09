@@ -191,7 +191,7 @@ if st.button("Analyze Reviews"):
 
         with st.spinner("Analyzing reviews..."):
 
-            response = qa_chain.invoke({"question": query})
+            response = qa_chain.invoke({"query": query})
 
             result = response["result"]
             docs = response["source_documents"]
