@@ -29,7 +29,7 @@ st.set_page_config(
     layout="wide"
 )
 
-st.title("🛍️ AI Product Review Analyzer (RAG System)")
+st.title("🛍️ AI Product Review Analyzer")
 st.markdown("**Architecture: RAG + FAISS + Llama3 (Groq)**")
 
 # --------------------------------------------------
@@ -68,12 +68,14 @@ def load_embeddings():
 
     return embeddings
 
+
 # --------------------------------------------------
 # Dataset Config
 # --------------------------------------------------
 
 PARQUET_FILE = "embedding_ready_reviews_small.parquet"
 FILE_ID = "1RwLDYTRcwwbdaNg8M279KxDp86AZ5WP2"
+
 
 # --------------------------------------------------
 # Load Vector Store
@@ -93,7 +95,7 @@ def load_vectorstore():
 
     df = pd.read_parquet(PARQUET_FILE)
 
-    # Limit text size to prevent token overflow
+    # limit text size to prevent token overflow
     texts = [text[:500] for text in df["embedding_text"].tolist()]
 
     vectorstore = FAISS.from_texts(
@@ -103,6 +105,7 @@ def load_vectorstore():
 
     return vectorstore
 
+
 # --------------------------------------------------
 # Prompt Template
 # --------------------------------------------------
@@ -110,15 +113,15 @@ def load_vectorstore():
 template = """
 You are an AI assistant that analyzes product reviews.
 
-Using the context below answer the question.
+Use the context below to answer the question.
 
 Context:
 {context}
 
 Question:
-{question}
+{query}
 
-Return your response in this format:
+Return your answer in this format:
 
 Summary:
 Top Recommendations:
@@ -127,8 +130,9 @@ Review Sentiment:
 
 prompt = PromptTemplate(
     template=template,
-    input_variables=["context", "question"]
+    input_variables=["context", "query"]
 )
+
 
 # --------------------------------------------------
 # Load LLM (Groq)
@@ -144,6 +148,7 @@ def load_llm():
     )
 
     return llm
+
 
 # --------------------------------------------------
 # Build RAG Chain
@@ -170,7 +175,9 @@ def build_chain():
 
     return qa_chain
 
+
 qa_chain = build_chain()
+
 
 # --------------------------------------------------
 # User Input
@@ -180,6 +187,7 @@ query = st.text_input(
     "Ask questions about products based on customer reviews:",
     placeholder="Example: Which refrigerator has the best customer reviews?"
 )
+
 
 # --------------------------------------------------
 # Run RAG
