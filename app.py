@@ -10,7 +10,7 @@ from langchain_community.embeddings import HuggingFaceEmbeddings
 from langchain_community.vectorstores import FAISS
 from langchain_core.prompts import PromptTemplate
 from langchain_classic.chains import RetrievalQA
-
+os.environ["GROQ_API_KEY"] = st.secrets["GROQ_API_KEY"]
 
 # --------------------------------------------------
 # Page Config
@@ -130,16 +130,15 @@ prompt = PromptTemplate(
 # Load LLM
 # --------------------------------------------------
 
+from langchain_groq import ChatGroq
+
 @st.cache_resource
 def load_llm():
 
-    pipe = pipeline(
-        "text2text-generation",
-        model="google/flan-t5-large",
-        max_new_tokens=256
+    llm = ChatGroq(
+        model="llama3-8b-8192",
+        temperature=0.3
     )
-
-    llm = HuggingFacePipeline(pipeline=pipe)
 
     return llm
 
