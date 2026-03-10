@@ -141,12 +141,15 @@ prompt = PromptTemplate(
 
 from langchain_google_genai import ChatGoogleGenerativeAI
 
+#from langchain_google_genai import ChatGoogleGenerativeAI
+
 @st.cache_resource
 def load_llm():
 
     llm = ChatGoogleGenerativeAI(
-        model="gemini-1.5-flash",
-        temperature=0.3
+        model="gemini-1.5-flash-latest",
+        temperature=0.3,
+        max_output_tokens=300
     )
 
     return llm
