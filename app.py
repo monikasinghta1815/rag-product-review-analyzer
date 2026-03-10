@@ -119,7 +119,7 @@ Context:
 {context}
 
 Question:
-{query}
+{question}
 
 Return your answer in this format:
 
@@ -130,7 +130,7 @@ Review Sentiment:
 
 prompt = PromptTemplate(
     template=template,
-    input_variables=["context", "query"]
+    input_variables=["context", "question"]
 )
 
 
