@@ -16,3 +16,6 @@ requests
 gdown
 huggingface-hub
 langchain-groq
+langchain-google-genai
+google-generativeai
+
