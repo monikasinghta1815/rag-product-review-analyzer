@@ -8,7 +8,7 @@ import gdown
 # API Key (must be before LangChain imports)
 # --------------------------------------------------
 
-os.environ["GROQ_API_KEY"] = st.secrets["GROQ_API_KEY"]
+#os.environ["GROQ_API_KEY"] = st.secrets["GROQ_API_KEY"]
 
 # --------------------------------------------------
 # LangChain Imports
@@ -138,13 +138,14 @@ prompt = PromptTemplate(
 # Load LLM (Groq)
 # --------------------------------------------------
 
+from langchain_google_genai import ChatGoogleGenerativeAI
+
 @st.cache_resource
 def load_llm():
 
-    llm = ChatGroq(
-        model="llama3-8b-8192",
-        temperature=0.3,
-        max_tokens=300
+    llm = ChatGoogleGenerativeAI(
+        model="gemini-1.5-flash",
+        temperature=0.3
     )
 
     return llm
